@@ -1,0 +1,100 @@
+//INFO FOR SENDING DATA TO MAX
+import netP5.*;
+import oscP5.*;
+OscP5 oscP5;
+NetAddress oscDestination;
+
+NetAddress myRemoteLocation;
+
+//Web cam 
+import processing.video.*;
+Capture cam;
+
+void setup() {
+
+
+  oscP5 = new OscP5(this, 12000);
+  oscDestination = new NetAddress("127.0.0.1", 12000);
+  oscP5.plug(this, "a", "/a");
+  oscP5.plug(this, "b", "/b"); 
+
+  // noCursor();
+  //fullScreen();
+  size(640, 480);
+
+
+  String[] cameras = Capture.list();
+
+  if (cameras.length == 0) {
+    println("There are no cameras available for capture.");
+    exit();
+  } else {
+    println("Available cameras:");
+    for (int i = 0; i < cameras.length; i++) {
+      println(cameras[i]);
+    }
+
+    // The camera can be initialized directly using an element from the array returned by list():
+    cam = new Capture(this, cameras[0]);
+    cam.start();
+  }
+
+  // Max port info 
+  myRemoteLocation = new NetAddress("127.0.0.1", 7374);
+}
+
+void draw() {
+
+  if (cam.available() == true) {
+    cam.read();
+  }
+
+
+ image(cam, 0, 0);
+cam.loadPixels();
+ // cam.loadPixels();
+  for (int x = 0; x < width; x++) {
+    for (int y = 0; y < height; y++) { 
+      float d = dist(x,y, width/2, height/2);
+  // int loc =  pixels[x+y*width];
+    int loc = x+y*width;
+    pixels[loc] = cam.pixels[loc]; 
+    }
+  }
+  updatePixels();
+}
+     
+      
+      
+      /*float b = brightness(pixels[loc]);
+      if (b > 100) {
+        pixels [ loc] = color(255);
+      } else {
+        pixels[loc] = color(0);
+      }
+    }
+  }
+ cam.updatePixels();
+}
+
+/*for (int x = 0; x < 640; x = x + 1) {
+ for (int y = 0; y < 480; y = y + 1) {
+ color c = get(x, y);
+ }
+ }*/
+
+
+/*loadPixels();
+ cam.loadPixels();
+ for (int x = 0; x < 640; x++) {
+ for (int y = 0; y < 480; y++) {  
+ int loc = x+y*640;
+ float b = brightness(cam.pixels[loc]);
+ if (b > 100){
+ pixels [ loc] = color(255);
+ } else {
+ pixels[loc] = color(0);
+ }
+ }
+ }
+ updatePixels();*/
